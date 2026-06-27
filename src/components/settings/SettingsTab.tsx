@@ -4,6 +4,17 @@ import * as api from "../../api/commands";
 import type { Config } from "../../types";
 import "./SettingsTab.css";
 
+const TRAJECTORY_COLOR_PRESETS = [
+  "#228B22",
+  "#EF4444",
+  "#F59E0B",
+  "#3B82F6",
+  "#06B6D4",
+  "#A855F7",
+  "#FFFFFF",
+  "#000000",
+];
+
 export function SettingsTab() {
   const { config, setConfig, pushHistory } = useStore();
 
@@ -117,6 +128,25 @@ export function SettingsTab() {
               onChange={(e) => handleTrajectoryColorChange(e.target.value)}
             />
           </label>
+
+          <div className="color-presets">
+            {TRAJECTORY_COLOR_PRESETS.map((preset) => (
+              <button
+                key={preset}
+                type="button"
+                className={
+                  trajectoryColor.toLowerCase() === preset.toLowerCase()
+                    ? "color-preset color-preset-selected"
+                    : "color-preset"
+                }
+                style={{ backgroundColor: preset }}
+                title={preset}
+                aria-label={preset}
+                disabled={!trajectory}
+                onClick={() => handleTrajectoryColorChange(preset)}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="settings-section">
