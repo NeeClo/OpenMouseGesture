@@ -16,6 +16,15 @@ properties:
     default: true
     example: true
 
+  # 軌跡の線色
+  trajectory_color:
+    type: string
+    description: |
+      マウスジェスチャーの軌跡を描画する線の色（"#RRGGBB" 形式）
+      省略された場合は既定色（#228B22）を使用する（後方互換のため任意項目）
+    default: "#228B22"
+    example: "#4ADE80"
+
   # グローバル無視EXEリスト
   ignore_exe:
     type: array
@@ -169,6 +178,7 @@ properties:
 # 使用例
 example:
   trajectory: true
+  trajectory_color: "#228B22"
   ignore_exe: []
   actions:
     - name: "戻る"

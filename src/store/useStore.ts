@@ -56,6 +56,7 @@ export const useStore = create<AppState>((set, get) => ({
   actions: [],
   config: {
     trajectory: true,
+    trajectory_color: "#228B22",
     ignore_exe: [],
     actions: [],
   },

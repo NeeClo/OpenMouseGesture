@@ -186,6 +186,7 @@ fn get_config() -> Result<config::Config, String> {
 fn save_config(config: config::Config) -> Result<(), String> {
     let manager = ConfigManager::new()?;
     set_trajectory_enabled_internal(config.trajectory);
+    trajectory_renderer::set_line_color_from_hex(&config.trajectory_color);
     manager.save_config(&config)
 }
 
@@ -313,6 +314,7 @@ fn reset_config_to_default() -> Result<(), String> {
         .map_err(|e| format!("Failed to parse default config: {}", e))?;
     manager.save_config(&config)?;
     set_trajectory_enabled_internal(config.trajectory);
+    trajectory_renderer::set_line_color_from_hex(&config.trajectory_color);
     Ok(())
 }
 
@@ -465,6 +467,7 @@ pub fn run() {
                 match manager.load_config() {
                     Ok(config) => {
                         set_trajectory_enabled_internal(config.trajectory);
+                        trajectory_renderer::set_line_color_from_hex(&config.trajectory_color);
                     }
                     Err(e) => {
                         eprintln!("[ERROR] config.json validation failed: {}", e);

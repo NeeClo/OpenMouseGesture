@@ -152,6 +152,7 @@ function App() {
         } else if (entry.type === "config") {
           const prev = entry.previousData as {
             trajectory: boolean;
+            trajectory_color: string;
             ignore_exe: string[];
             actions: [];
           };
@@ -221,6 +222,7 @@ function App() {
         } else if (entry.type === "config") {
           const data = entry.data as {
             trajectory: boolean;
+            trajectory_color: string;
             ignore_exe: string[];
             actions: [];
           };

@@ -31,7 +31,7 @@ static TRAJECTORY_BOUNDS: Mutex<Option<RECT>> = Mutex::new(None);
 static PREVIOUS_BOUNDS: Mutex<Option<RECT>> = Mutex::new(None);
 
 const WINDOW_CLASS_NAME: PCWSTR = w!("OpenMouseGestureTrajectory");
-const LINE_COLOR_RGB: u32 = 0x00228B22;
+static LINE_COLOR_RGB: Mutex<u32> = Mutex::new(0x00228B22);
 const LINE_WIDTH: i32 = 3;
 const BOUNDS_MARGIN: i32 = LINE_WIDTH * 2 + 10;
 const WM_UPDATE_TRAJECTORY: u32 = WM_USER + 1;
@@ -158,7 +158,8 @@ unsafe fn render_to_memory_dc_with_snapshot(snapshot_bounds: Option<RECT>, snaps
         let _ = PatBlt(mem_dc, 0, 0, width, height, BLACKNESS);
         
         if snapshot_points.len() >= 2 {
-            let pen = CreatePen(PS_SOLID, LINE_WIDTH, COLORREF(LINE_COLOR_RGB));
+            let line_color = *LINE_COLOR_RGB.lock().unwrap();
+            let pen = CreatePen(PS_SOLID, LINE_WIDTH, COLORREF(line_color));
             let old_pen = SelectObject(mem_dc, pen.into());
             
             let _ = SetBkMode(mem_dc, TRANSPARENT);
@@ -444,6 +445,30 @@ pub fn init_renderer() -> Result<()> {
 
     std::thread::sleep(std::time::Duration::from_millis(100));
     Ok(())
+}
+
+// 概要: 軌跡線の描画色を設定する
+// 入出力:
+//   - 入力: "#RRGGBB" 形式の文字列。不正な値は無視され既定色を維持する
+//   - 出力: なし（以降の描画に反映）
+// 実装詳細:
+//   - GDIのCOLORREFはBGR順(0x00BBGGRR)のためRGBから並べ替える
+//   - アルファ算出が黒背景(=透明)と線色を色で区別するため、純黒(#000000)は0x010101へ補正する
+pub fn set_line_color_from_hex(hex: &str) {
+    let trimmed = hex.trim().trim_start_matches('#');
+    if trimmed.len() != 6 {
+        return;
+    }
+    if let Ok(rgb) = u32::from_str_radix(trimmed, 16) {
+        let r = (rgb >> 16) & 0xFF;
+        let g = (rgb >> 8) & 0xFF;
+        let b = rgb & 0xFF;
+        let mut color_ref = (b << 16) | (g << 8) | r;
+        if color_ref == 0 {
+            color_ref = 0x010101;
+        }
+        *LINE_COLOR_RGB.lock().unwrap() = color_ref;
+    }
 }
 
 pub fn update_trajectory(points: &[(i32, i32)], visible: bool) {

@@ -99,15 +99,28 @@ impl Action {
     }
 }
 
+fn default_trajectory_color() -> String {
+    "#228B22".to_string()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     pub trajectory: bool,
+    #[serde(default = "default_trajectory_color")]
+    pub trajectory_color: String,
     pub ignore_exe: Vec<String>,
     pub actions: Vec<Action>,
 }
 
 impl Config {
     fn validate(&self) -> Result<(), ValidationError> {
+        if !is_valid_hex_color(&self.trajectory_color) {
+            return Err(ValidationError::InvalidValue(format!(
+                "trajectory_color は '#RRGGBB' 形式である必要があります: {}",
+                self.trajectory_color
+            )));
+        }
+
         for (idx, action) in self.actions.iter().enumerate() {
             action.validate().map_err(|e| {
                 ValidationError::InvalidValue(format!("actions[{}]: {}", idx, e))
@@ -115,6 +128,11 @@ impl Config {
         }
         Ok(())
     }
+}
+
+fn is_valid_hex_color(value: &str) -> bool {
+    let bytes = value.as_bytes();
+    bytes.len() == 7 && bytes[0] == b'#' && bytes[1..].iter().all(|b| b.is_ascii_hexdigit())
 }
 
 impl GestureTemplate {

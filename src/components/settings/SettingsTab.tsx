@@ -8,6 +8,7 @@ export function SettingsTab() {
   const { config, setConfig, pushHistory } = useStore();
 
   const [trajectory, setTrajectory] = useState(config.trajectory);
+  const [trajectoryColor, setTrajectoryColor] = useState(config.trajectory_color);
   const [ignoreExe, setIgnoreExe] = useState(config.ignore_exe.join("\n"));
   const [error, setError] = useState<string | null>(null);
   const skipSyncRef = useRef(false);
@@ -18,6 +19,7 @@ export function SettingsTab() {
       return;
     }
     setTrajectory(config.trajectory);
+    setTrajectoryColor(config.trajectory_color);
     setIgnoreExe(config.ignore_exe.join("\n"));
   }, [config]);
 
@@ -29,6 +31,9 @@ export function SettingsTab() {
 
   const hasConfigChanged = (next: Config, prev: Config) => {
     if (next.trajectory !== prev.trajectory) {
+      return true;
+    }
+    if (next.trajectory_color !== prev.trajectory_color) {
       return true;
     }
     if (next.ignore_exe.length !== prev.ignore_exe.length) {
@@ -64,6 +69,7 @@ export function SettingsTab() {
         skipSyncRef.current = false;
         setConfig(previousConfig);
         setTrajectory(previousConfig.trajectory);
+        setTrajectoryColor(previousConfig.trajectory_color);
         setIgnoreExe(previousConfig.ignore_exe.join("\n"));
       }
     },
@@ -73,6 +79,11 @@ export function SettingsTab() {
   const handleTrajectoryChange = (checked: boolean) => {
     setTrajectory(checked);
     void persistConfig({ trajectory: checked });
+  };
+
+  const handleTrajectoryColorChange = (value: string) => {
+    setTrajectoryColor(value);
+    void persistConfig({ trajectory_color: value });
   };
 
   const handleIgnoreExeChange = (value: string) => {
@@ -95,6 +106,16 @@ export function SettingsTab() {
               onChange={(e) => handleTrajectoryChange(e.target.checked)}
             />
             <span>軌跡を表示する</span>
+          </label>
+
+          <label className="color-label">
+            <span>軌跡の色</span>
+            <input
+              type="color"
+              value={trajectoryColor}
+              disabled={!trajectory}
+              onChange={(e) => handleTrajectoryColorChange(e.target.value)}
+            />
           </label>
         </div>
 

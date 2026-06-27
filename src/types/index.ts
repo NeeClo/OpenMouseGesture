@@ -29,6 +29,7 @@ export interface Action {
 
 export interface Config {
   trajectory: boolean;
+  trajectory_color: string;
   ignore_exe: string[];
   actions: Action[];
 }
